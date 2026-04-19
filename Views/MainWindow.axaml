@@ -6,7 +6,6 @@
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
         x:Class="MediaDownloader.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
         Title="MediaDownloader"
         TransparencyLevelHint="AcrylicBlur"
         Background="Transparent"
@@ -62,8 +61,8 @@
                         <StackPanel Spacing="8" Grid.Column="0">
                             <TextBlock Text="Formato de Salida" FontWeight="SemiBold"/>
                             <StackPanel Orientation="Horizontal" Spacing="20">
-                                <RadioButton Content="MP4 (Video)" IsChecked="{Binding Format, Converter={StaticResource ObjectConverters.Equal}, ConverterParameter='MP4'}"/>
-                                <RadioButton Content="MP3 (Audio)" IsChecked="{Binding Format, Converter={StaticResource ObjectConverters.Equal}, ConverterParameter='MP3'}"/>
+                                <RadioButton Content="MP4 (Video)" IsChecked="{Binding Format, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='MP4'}"/>
+                                <RadioButton Content="MP3 (Audio)" IsChecked="{Binding Format, Converter={x:Static ObjectConverters.Equal}, ConverterParameter='MP3'}"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -126,7 +125,7 @@
                                             <TextBlock Text="{Binding Date, StringFormat='{}{0:G}'}" FontSize="11" Foreground="#888888"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding Progress, StringFormat='{}{0:0}%'}" 
-                                                   VerticalAlignment="Center" FontWeight="Bold" IsVisible="{Binding Progress, Converter={StaticResource ObjectConverters.NotEqual}, ConverterParameter=0}"/>
+                                                   VerticalAlignment="Center" FontWeight="Bold" IsVisible="{Binding Progress, Converter={x:Static ObjectConverters.NotEqual}, ConverterParameter=0}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
