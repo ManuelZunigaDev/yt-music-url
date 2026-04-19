@@ -1,0 +1,12 @@
+[Bb]in/
+[Oo]bj/
+*.user
+*.userosscache
+*.sln.doccache
+.vs/
+.idea/
+.vscode/
+Tools/
+*.exe
+*.dll
+*.pdb
