@@ -1,7 +1,13 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:h="using:MediaDownloader.Helpers"
              x:Class="MediaDownloader.App"
              RequestedThemeVariant="Dark">
+    <Application.Resources>
+        <h:ComparisonConverter x:Key="ComparisonConverter"/>
+        <h:NotEqualConverter x:Key="NotEqualConverter"/>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>

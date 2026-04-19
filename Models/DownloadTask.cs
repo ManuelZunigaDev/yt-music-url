@@ -19,7 +19,6 @@ public class DownloadTask : INotifyPropertyChanged
         get => _name;
         set => SetField(ref _name, value);
     }
-
     public string Status
     {
         get => _status; // "Pendiente", "Descargando", "Completado", "Error"

@@ -21,7 +21,7 @@ public class FFmpegService : IFFmpegService
 
     public FFmpegService()
     {
-        _ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "ffmpeg.exe");
+        _ffmpegPath = Helpers.ToolFinder.FindTool("ffmpeg.exe");
     }
 
     public async Task ConvertToMp3Async(string inputPath, string outputPath, CancellationToken ct)

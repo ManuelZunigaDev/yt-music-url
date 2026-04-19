@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <None Update="Tools\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

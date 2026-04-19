@@ -23,8 +23,7 @@ public class DownloadService : IDownloadService
 
     public DownloadService()
     {
-        // Path relativo a la carpeta Tools/
-        _ytDlpPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "yt-dlp.exe");
+        _ytDlpPath = Helpers.ToolFinder.FindTool("yt-dlp.exe");
     }
 
     public async Task<MediaInfo> GetMediaInfoAsync(string url, CancellationToken ct)
@@ -36,17 +35,44 @@ public class DownloadService : IDownloadService
             line => jsonOutput += line,
             ct);
 
-        if (exitCode != 0)
-            throw new Exception("Error al obtener información del medio.");
+        if (exitCode != 0 && string.IsNullOrWhiteSpace(jsonOutput))
+            throw new Exception($"yt-dlp falló con código {exitCode}. Verifica la URL.");
 
-        var json = JObject.Parse(jsonOutput);
-        
-        return new MediaInfo
+        try
         {
-            Title = json["title"]?.ToString() ?? "Desconocido",
-            Duration = json["duration_string"]?.ToString() ?? "00:00",
-            Formats = new List<string> { "MP4", "MP3" } // Simplificado para la UI
-        };
+            // yt-dlp puede imprimir múltiples líneas, algunas pueden no ser JSON (advertencias, etc.)
+            // Buscamos la primera línea que sea un objeto JSON válido.
+            string[] lines = jsonOutput.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            JObject? json = null;
+
+            foreach (var line in lines)
+            {
+                try
+                {
+                    string trimmed = line.Trim();
+                    if (trimmed.StartsWith("{") && trimmed.EndsWith("}"))
+                    {
+                        json = JObject.Parse(trimmed);
+                        break;
+                    }
+                }
+                catch { /* Continuar buscando */ }
+            }
+
+            if (json == null)
+                throw new Exception("No se encontró una respuesta JSON válida de yt-dlp.");
+            
+            return new MediaInfo
+            {
+                Title = json["title"]?.ToString() ?? "Desconocido",
+                Duration = json["duration_string"]?.ToString() ?? "00:00",
+                Formats = new List<string> { "MP4", "MP3" }
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al procesar la respuesta: {ex.Message}");
+        }
     }
 
     public async Task DownloadAsync(string url, string format, string outputPath,

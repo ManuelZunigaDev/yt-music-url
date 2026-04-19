@@ -40,6 +40,22 @@ public class MainWindowViewModel : ViewModelBase
         DownloadCommand = new AsyncRelayCommand(DownloadAsync, () => MediaInfo != null && !IsBusy);
         CancelCommand = new RelayCommand(Cancel, () => IsBusy);
         SelectFolderCommand = new AsyncRelayCommand(SelectFolderAsync);
+
+        CheckTools();
+    }
+
+    private void CheckTools()
+    {
+        string ytDlp = Helpers.ToolFinder.FindTool("yt-dlp.exe");
+        string ffmpeg = Helpers.ToolFinder.FindTool("ffmpeg.exe");
+
+        bool ytDlpExists = File.Exists(ytDlp) || ytDlp == "yt-dlp.exe"; // Si es solo el nombre, asumimos que está en PATH
+        bool ffmpegExists = File.Exists(ffmpeg) || ffmpeg == "ffmpeg.exe";
+
+        if (!ytDlpExists || !ffmpegExists)
+        {
+            StatusMessage = "ADVERTENCIA: Falta yt-dlp.exe o ffmpeg.exe. Colócalos en la carpeta del programa.";
+        }
     }
 
     #region Properties
