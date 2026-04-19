@@ -32,7 +32,7 @@ public class DownloadService : IDownloadService
         int exitCode = await ProcessHelper.RunAsync(
             _ytDlpPath,
             $"--dump-json \"{url}\"",
-            line => jsonOutput += line,
+            line => jsonOutput += line + Environment.NewLine,
             ct);
 
         if (exitCode != 0 && string.IsNullOrWhiteSpace(jsonOutput))
@@ -60,7 +60,7 @@ public class DownloadService : IDownloadService
             }
 
             if (json == null)
-                throw new Exception("No se encontró una respuesta JSON válida de yt-dlp.");
+                throw new Exception($"No se encontró una respuesta JSON de yt-dlp. Salida obtenida: {(jsonOutput.Length > 100 ? jsonOutput.Substring(0, 100) : jsonOutput)}");
             
             return new MediaInfo
             {

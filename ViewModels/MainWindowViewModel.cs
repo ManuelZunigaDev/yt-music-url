@@ -62,7 +62,14 @@ public class MainWindowViewModel : ViewModelBase
     public string Url
     {
         get => _url;
-        set { if (SetField(ref _url, value)) ((AsyncRelayCommand)GetInfoCommand).RaiseCanExecuteChanged(); }
+        set 
+        { 
+            if (SetField(ref _url, value?.Trim() ?? string.Empty)) 
+            {
+                MediaInfo = null;
+                ((AsyncRelayCommand)GetInfoCommand).RaiseCanExecuteChanged(); 
+            }
+        }
     }
 
     public MediaInfo? MediaInfo
@@ -141,9 +148,11 @@ public class MainWindowViewModel : ViewModelBase
         try
         {
             IsBusy = true;
-            StatusMessage = "Obteniendo información...";
+            MediaInfo = null; // Limpiar información previa
+            StatusMessage = "Analizando contenido...";
+            
             MediaInfo = await _downloadService.GetMediaInfoAsync(Url, CancellationToken.None);
-            StatusMessage = "Información obtenida";
+            StatusMessage = "Análisis completado";
         }
         catch (Exception ex)
         {
