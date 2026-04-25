@@ -27,7 +27,9 @@ public class MainWindowViewModel : ViewModelBase
     private string _outputFolder = "";
     private double _totalProgress;
     private bool _isBusy;
-    private string _statusMessage = "Listo";
+    private string _statusMessage = "Bienvenido a XDisk - Listo para descargar";
+    private bool _isDownloadComplete;
+    private bool _hasError;
 
     public MainWindowViewModel()
     {
@@ -49,12 +51,17 @@ public class MainWindowViewModel : ViewModelBase
         string ytDlp = Helpers.ToolFinder.FindTool("yt-dlp.exe");
         string ffmpeg = Helpers.ToolFinder.FindTool("ffmpeg.exe");
 
-        bool ytDlpExists = File.Exists(ytDlp) || ytDlp == "yt-dlp.exe"; // Si es solo el nombre, asumimos que está en PATH
-        bool ffmpegExists = File.Exists(ffmpeg) || ffmpeg == "ffmpeg.exe";
+        bool ytDlpExists = File.Exists(ytDlp);
+        bool ffmpegExists = File.Exists(ffmpeg);
 
-        if (!ytDlpExists || !ffmpegExists)
+        if (!ytDlpExists)
         {
-            StatusMessage = "ADVERTENCIA: Falta yt-dlp.exe o ffmpeg.exe. Colócalos en la carpeta del programa.";
+            StatusMessage = "ERROR: No se encontró yt-dlp.exe. Por favor, colócalo en la carpeta del programa.";
+            HasError = true;
+        }
+        else if (!ffmpegExists)
+        {
+            StatusMessage = "ADVERTENCIA: No se encontró ffmpeg.exe. Las conversiones a MP3 y los recortes podrían fallar.";
         }
     }
 
@@ -127,6 +134,18 @@ public class MainWindowViewModel : ViewModelBase
         set => SetField(ref _statusMessage, value);
     }
 
+    public bool IsDownloadComplete
+    {
+        get => _isDownloadComplete;
+        set => SetField(ref _isDownloadComplete, value);
+    }
+
+    public bool HasError
+    {
+        get => _hasError;
+        set => SetField(ref _hasError, value);
+    }
+
     public ObservableCollection<DownloadTask> History { get; }
     #endregion
 
@@ -180,6 +199,8 @@ public class MainWindowViewModel : ViewModelBase
         History.Insert(0, task);
         IsBusy = true;
         TotalProgress = 0;
+        IsDownloadComplete = false;
+        HasError = false;
 
         try
         {
@@ -220,6 +241,7 @@ public class MainWindowViewModel : ViewModelBase
             task.Status = "Completado";
             task.Progress = 100;
             StatusMessage = "¡Completado!";
+            IsDownloadComplete = true;
         }
         catch (OperationCanceledException)
         {
@@ -230,6 +252,7 @@ public class MainWindowViewModel : ViewModelBase
         {
             task.Status = "Error";
             StatusMessage = $"Error: {ex.Message}";
+            HasError = true;
         }
         finally
         {

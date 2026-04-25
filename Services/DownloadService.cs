@@ -78,19 +78,25 @@ public class DownloadService : IDownloadService
     public async Task DownloadAsync(string url, string format, string outputPath,
                                    IProgress<double> progress, CancellationToken ct)
     {
-        string args;
-        string tempDir = Path.GetDirectoryName(outputPath) ?? "";
-        string fileName = Path.GetFileName(outputPath);
+        string ffmpegPath = Helpers.ToolFinder.FindTool("ffmpeg.exe");
+        string ffmpegDir = Path.GetDirectoryName(ffmpegPath);
+        
+        string ffmpegOption = !string.IsNullOrEmpty(ffmpegDir) && Directory.Exists(ffmpegDir) 
+            ? $"--ffmpeg-location \"{ffmpegDir}\"" 
+            : "";
 
+        string args;
         if (format.ToUpper() == "MP3")
         {
-            // Descargar solo audio
-            args = $"-x --audio-format mp3 --newline -o \"{outputPath}\" \"{url}\"";
+            // Descargar solo audio y convertir a mp3 usando ffmpeg
+            // --no-part: No crear archivos .part temporales
+            // --restrict-filenames: Evitar caracteres raros en archivos temporales
+            args = $"-x --audio-format mp3 {ffmpegOption} --newline --no-part --restrict-filenames -o \"{outputPath}\" \"{url}\"";
         }
         else
         {
-            // Descargar video MP4
-            args = $"-f \"bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]\" --newline -o \"{outputPath}\" \"{url}\"";
+            // Descargar video MP4 y unir streams usando ffmpeg
+            args = $"-f \"bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]\" {ffmpegOption} --newline --no-part --restrict-filenames -o \"{outputPath}\" \"{url}\"";
         }
 
         await ProcessHelper.RunAsync(
